@@ -35,6 +35,7 @@ class _ListViewTaskState extends State<ListViewTask> {
       body: ListView.builder(
         itemCount: tasks.length,
         itemBuilder: (context, index) {
+          bool localIsDone = tasks[index].isDone ?? false;
           return Card(
             color: Colors.grey[100],
             child: Padding(
@@ -48,18 +49,21 @@ class _ListViewTaskState extends State<ListViewTask> {
                       Text(
                         tasks[index].title.toString(),
                         style: TextStyle(
-                            color: Colors.green[800],
+                            decoration:
+                                localIsDone ? TextDecoration.lineThrough : null,
+                            decorationColor: localIsDone ? Colors.red : null,
+                            color:
+                                localIsDone ? Colors.grey : Colors.green[800],
                             fontWeight: FontWeight.bold,
                             fontSize: 28),
                       ),
-                      Radio(
-                          value: true,
-                          groupValue: tasks[index].isDone ?? false,
+                      Checkbox(
+                          value: tasks[index].isDone ?? false,
                           onChanged: (value) {
                             if (value != null) {
-                              taskService.editTask(index, tasks[index].title!,
-                                  tasks[index].description!, value);
+                              taskService.editTaskIsDone(index, value);
                             }
+
                             setState(() {
                               tasks[index].isDone = value;
                             });
@@ -74,27 +78,32 @@ class _ListViewTaskState extends State<ListViewTask> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       IconButton(
-                        onPressed: () async {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => FormViewTask(
-                                        task: tasks[index],
-                                        index: index,
-                                      ))).then((value) => getAllTasks());
-                        },
-                        icon: Icon(Icons.edit_rounded),
-                        color: Colors.blueAccent,
-                      ),
-                      IconButton(
                           onPressed: () async {
+                            if (localIsDone) {
+                              return;
+                            }
                             await taskService.deleteTask(index);
                             getAllTasks();
                           },
                           icon: Icon(
                             Icons.delete,
-                            color: Colors.red,
-                          ))
+                            color: localIsDone ? Colors.grey : Colors.red,
+                          )),
+                      localIsDone
+                          ? new Container()
+                          : IconButton(
+                              onPressed: () async {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => FormViewTask(
+                                              task: tasks[index],
+                                              index: index,
+                                            ))).then((value) => getAllTasks());
+                              },
+                              icon: Icon(Icons.edit_rounded),
+                              color: Colors.blueAccent,
+                            )
                     ],
                   )
                 ],
