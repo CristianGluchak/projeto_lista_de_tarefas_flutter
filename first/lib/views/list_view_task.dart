@@ -107,7 +107,7 @@ class _ListViewTaskState extends State<ListViewTask> {
                     ],
                   ),
                   Text(
-                    "Prioridade: " +tasks[index].priority.toString(),
+                    "Prioridade: " + tasks[index].priority.toString(),
                     style: TextStyle(fontSize: 16),
                   )
                 ],
